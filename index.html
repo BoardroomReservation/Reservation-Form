@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OCC Boardroom Reservation</title>
+  <style>
+    :root{
+      --brand:#003366;
+      --brand-2:#0055a5;
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#222;
+      --muted:#667085;
+      --border:#d0d5dd;
+      --error:#c62828;
+      --ok:#1b5e20;
+      --accent:#e9eef7;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg); color:var(--text);
+    }
+    .container{ max-width:1000px; margin:32px auto; padding:0 16px; }
+    .header{
+      display:flex; align-items:center; gap:12px; margin-bottom:16px;
+    }
+    .header img.logo{ height:48px; width:auto; }
+    .header h1{
+      margin:0; font-size:26px; color:var(--brand);
+    }
+
+    .card{
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:22px 20px; box-shadow:0 6px 18px rgba(0,0,0,.06);
+      margin-bottom:20px;
+    }
+    .subtitle{ margin:0 0 16px; color:var(--muted); }
+
+    .grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+    @media (min-width:720px){
+      .grid-2{ grid-template-columns:1fr 1fr; }
+      .grid-3{ grid-template-columns:1fr 1fr 1fr; }
+    }
+
+    label{ display:block; font-weight:600; margin-bottom:6px; }
+    .hint{ font-size:12px; color:var(--muted); margin-top:6px; }
+    input[type="text"], input[type="date"], select, textarea{
+      width:100%; padding:12px;
+      border:1px solid var(--border); border-radius:10px; background:#fff;
+      font-size:14px; outline:none; transition:border .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--brand-2); box-shadow:0 0 0 3px rgba(0,85,165,.12);
+    }
+    textarea{ min-height:130px; resize:vertical; }
+    .inline-error{ color:var(--error); font-size:12px; margin-top:6px; display:none; }
+    .counter{ font-size:12px; color:var(--muted); margin-top:6px; }
+    .success{ color:var(--ok); font-size:13px; display:none; margin-top:10px; }
+    .required{ color:#d32f2f; margin-left:2px }
+
+    button{
+      padding:12px 16px; background:var(--brand);
+      color:#fff; font-weight:700; border:none; border-radius:10px;
+      cursor:pointer; font-size:14px;
+      transition: background .15s ease, transform .05s ease;
+    }
+    button:hover{ background:var(--brand-2); }
+    button:active{ transform:translateY(1px); }
+
+    /* Table styles */
+    .table-wrap{
+      border:1px solid var(--border); border-radius:12px; overflow:hidden;
+      background:#fff;
+    }
+    table{ width:100%; border-collapse:collapse; font-size:14px; }
+    thead{ background:var(--accent); }
+    th, td{ padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+    th{ text-align:left; color:#1f2a44; font-weight:700; }
+    tr:last-child td{ border-bottom:none; }
+    .actions{ display:flex; gap:8px; }
+    .btn-danger{ background:#b3261e; }
+    .btn-danger:hover{ background:#d44239; }
+    .btn-secondary{ background:#6b7280; }
+    .btn-secondary:hover{ background:#80889a; }
+    .toolbar{ display:flex; justify-content:flex-end; gap:8px; padding:10px 0; }
+    .muted{ color:var(--muted); font-size:12px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Omega Healthcare logo -->
+    <div class="header">
+      <img
+        class="logo"
+        src="https://www.omegahms.com/wp-content/uploads/2025/01/cropped-cropped-OMH_Logo_Color_R.png"
+        alt="Omega Healthcare logo"
+      />
+      <h1>OCC Boardroom Reservation</h1>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+      <p class="subtitle">Reserve the 37F or 36F Boardroom. All fields are required.</p>
+
+      <form id="reservationForm" novalidate>
+        <!-- Full Name -->
+        <div class="grid grid-2">
+          <div>
+            <label>First Name<span class="required">*</span></label>
+            <input type="text" id="firstName" placeholder="First Name" required />
+            <div class="inline-error" id="firstNameErr">First Name is required.</div>
+          </div>
+          <div>
+            <label>Last Name<span class="required">*</span></label>
+            <input type="text" id="lastName" placeholder="Last Name" required />
+            <div class="inline-error" id="lastNameErr">Last Name is required.</div>
+          </div>
+        </div>
+
+        <!-- Date & Room -->
+        <div class="grid grid-2" style="margin-top:12px;">
+          <div>
+            <label>Date<span class="required">*</span></label>
+            <input type="date" id="date" required />
+            <div class="inline-error" id="dateErr">Please select a date.</div>
+          </div>
+          <div>
+            <label>Room<span class="required">*</span></label>
+            <select id="room" required>
+              <option value="">Select a room</option>
+              <option value="37F Boardroom">37F Boardroom</option>
+              <option value="36F Boardroom">36F Boardroom</option>
+            </select>
+            <div class="inline-error" id="roomErr">Please choose a room.</div>
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div class="grid grid-2" style="margin-top:12px;">
+          <div>
+            <label>Start Time<span class="required">*</span></label>
+            <select id="startTime" required></select>
+            <div class="inline-error" id="startErr">Select Start Time.</div>
+          </div>
+          <div>
+            <label>End Time<span class="required">*</span></label>
+            <select id="endTime" required></select>
+            <div class="inline-error" id="endErr">End Time must be after Start Time.</div>
+          </div>
+        </div>
+        <div class="hint">Hours only (12 AM to 11 PM). Minutes are not included.</div>
+
+        <!-- Purpose -->
+        <div style="margin-top:12px;">
+          <label>Purpose (200 words max)<span class="required">*</span></label>
+          <textarea id="purpose" placeholder="Describe the purpose..." required></textarea>
+          <div class="counter"><span id="wordCount">0</span>/200 words</div>
+          <div class="inline-error" id="purposeErr">Purpose is required and must be 200 words or fewer.</div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button type="submit">Submit Reservation</button>
+          <button type="button" class="btn-secondary" id="resetFormBtn">Reset Form</button>
+        </div>
+
+        <div class="success" id="successMsg">✓ Reservation saved locally.</div>
+        <p class="muted">Note: Entries are saved to your browser only. For a shared company-wide list, connect this to Google Sheets/Microsoft Forms.</p>
+      </form>
+    </div>
+
+    <!-- Reservation List -->
+    <div class="card">
+      <h2 style="margin-top:0;">Reservation List</h2>
+      <div class="table-wrap">
+        <table aria-label="Reservation list">
+          <thead>
+            <tr>
+              <th style="width:18%;">Name</th>
+              <th style="width:14%;">Date</th>
+              <th style="width:16%;">Room</th>
+              <th style="width:15%;">Start</th>
+              <th style="width:15%;">End</th>
+              <th>Purpose</th>
+              <th style="width:110px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reservationsTbody">
+            <tr><td colspan="7" class="muted" style="padding:14px;">No reservations yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toolbar">
+        <button id="exportCsvBtn" class="btn-secondary" type="button" title="Download a CSV of your local reservations">Export CSV</button>
+        <button id="clearAllBtn" class="btn-danger" type="button">Clear All Reservations</button>
+      </div>
+      <p class="muted">Deleting is permanent (local to this device).</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // ---------- Time dropdowns (12 AM – 11 PM) ----------
+      const hours = Array.from({ length: 24 }, (_, i) => {
+        const suffix = i < 12 ? "AM" : "PM";
+        const hour = i % 12 === 0 ? 12 : i % 12;
+        return `${hour} ${suffix}`;
+      });
+      const startTimeEl = document.getElementById("startTime");
+      const endTimeEl = document.getElementById("endTime");
+      function fillTime(select) {
+        select.innerHTML = '<option value="">Select time</option>';
+        hours.forEach(h => {
+          const opt = document.createElement("option");
+          opt.value = h; opt.textContent = h;
+          select.appendChild(opt);
+        });
+      }
+      fillTime(startTimeEl); fillTime(endTimeEl);
+
+      // ---------- Helpers ----------
+      const to24h = label => {
+        if (!label) return null;
+        const [hStr, ap] = label.split(" ");
+        let h = parseInt(hStr, 10);
+        if (ap === "AM") { if (h === 12) h = 0; }
+        else { if (h !== 12) h += 12; }
+        return h;
+      };
+      const truncateWords = (text, max=25) => {
+        const parts = (text || "").trim().split(/\s+/).filter(Boolean);
+        if (parts.length <= max) return text || "";
+        return parts.slice(0, max).join(" ") + " …";
+      }
+      const formatDate = iso => {
+        try {
+          const d = new Date(iso + "T00:00:00");
+          return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+        } catch { return iso; }
+      }
+
+      // ---------- Purpose word counter ----------
+      const purposeEl = document.getElementById("purpose");
+      const wordCountEl = document.getElementById("wordCount");
+      const countWords = t => (t.trim().match(/\b[\w’'-]+\b/g) || []).length;
+      purposeEl.addEventListener("input", () => {
+        const words = purposeEl.value.match(/\b[\w’'-]+\b/g) || [];
+        if (words.length > 200) {
+          purposeEl.value = words.slice(0,200).join(" ");
+        }
+        wordCountEl.textContent = countWords(purposeEl.value);
+      });
+
+      // ---------- LocalStorage ----------
+      const LS_KEY = "occ_reservations";
+      const loadReservations = () => {
+        try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+        catch { return []; }
+      };
+      const saveReservations = list => {
+        localStorage.setItem(LS_KEY, JSON.stringify(list));
+      };
+
+      // ---------- Render Table ----------
+      const tbody = document.getElementById("reservationsTbody");
+      function renderTable() {
+        const data = loadReservations();
+        tbody.innerHTML = "";
+        if (data.length === 0) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 7; td.className = "muted";
+          td.style.padding = "14px";
+          td.textContent = "No reservations yet.";
+          tr.appendChild(td); tbody.appendChild(tr);
+          return;
+        }
+
+        data.sort((a,b) => (a.date || "").localeCompare(b.date) || to24h(a.startTime) - to24h(b.startTime));
+        for (const row of data) {
+          const tr = document.createElement("tr");
+
+          const tdName = document.createElement("td");
+          tdName.textContent = `${row.firstName} ${row.lastName}`.trim();
+
+          const tdDate = document.createElement("td");
+          tdDate.textContent = formatDate(row.date);
+
+          const tdRoom = document.createElement("td");
+          tdRoom.textContent = row.room || "";
+
+          const tdStart = document.createElement("td");
+          tdStart.textContent = row.startTime || "";
+
+          const tdEnd = document.createElement("td");
+          tdEnd.textContent = row.endTime || "";
+
+          const tdPurpose = document.createElement("td");
+          tdPurpose.textContent = truncateWords(row.purpose, 25);
+          tdPurpose.title = row.purpose || "";
+
+          const tdActions = document.createElement("td");
+          tdActions.className = "actions";
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "btn-danger";
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", () => deleteReservation(row.id));
+          tdActions.appendChild(delBtn);
+
+          [tdName, tdDate, tdRoom, tdStart, tdEnd, tdPurpose, tdActions].forEach(td => tr.appendChild(td));
+          tbody.appendChild(tr);
+        }
+      }
+
+      // ---------- Form submission ----------
+      const form = document.getElementById("reservationForm");
+      const successMsg = document.getElementById("successMsg");
+      const firstName = document.getElementById("firstName");
+      const lastName = document.getElementById("lastName");
+      const dateEl = document.getElementById("date");
+      const roomEl = document.getElementById("room");
+
+      const firstNameErr = document.getElementById("firstNameErr");
+      const lastNameErr = document.getElementById("lastNameErr");
+      const dateErr = document.getElementById("dateErr");
+      const roomErr = document.getElementById("roomErr");
+      const startErr = document.getElementById("startErr");
+      const endErr = document.getElementById("endErr");
+      const purposeErr = document.getElementById("purposeErr");
+
+      const show = el => el.style.display = "block";
+      const hide = el => el.style.display = "none";
+
+      form.addEventListener("submit", e => {
+        e.preventDefault();
+        [firstNameErr,lastNameErr,dateErr,roomErr,startErr,endErr,purposeErr].forEach(hide);
+        successMsg.style.display = "none";
+
+        let valid = true;
+
+        if (!firstName.value.trim()) { show(firstNameErr); valid = false; }
+        if (!lastName.value.trim())  { show(lastNameErr);  valid = false; }
+        if (!dateEl.value)           { show(dateErr);      valid = false; }
+        if (!roomEl.value)           { show(roomErr);      valid = false; }
+        if (!startTimeEl.value)      { show(startErr);     valid = false; }
+        if (!endTimeEl.value)        { show(endErr);       valid = false; }
+
+        if (startTimeEl.value && endTimeEl.value) {
+          const s = to24h(startTimeEl.value);
+          const e2 = to24h(endTimeEl.value);
+          if (!(s < e2)) { show(endErr); valid = false; }
+        }
+
+        const words = countWords(purposeEl.value);
+        if (!purposeEl.value.trim() || words > 200) {
+          show(purposeErr); valid = false;
+        }
+
+        if (!valid) return;
+
+        const entry = {
+          id: Date.now().toString(),
+          firstName: firstName.value.trim(),
+          lastName: lastName.value.trim(),
+          date: dateEl.value,
+          room: roomEl.value,
+          startTime: startTimeEl.value,
+          endTime: endTimeEl.value,
+          purpose: purposeEl.value.trim()
+        };
+        const current = loadReservations();
+        current.push(entry); saveReservations(current);
+        renderTable();
+
+        successMsg.style.display = "block";
+        form.reset();
+        document.getElementById("wordCount").textContent = "0";
+        // Refill times after reset (browser may clear options for <select>)
+        fillTime(startTimeEl); fillTime(endTimeEl);
+      });
+
+      // Reset button
+      document.getElementById("resetFormBtn").addEventListener("click", () => {
+        form.reset();
+        document.getElementById("wordCount").textContent = "0";
+        [firstNameErr,lastNameErr,dateErr,roomErr,startErr,endErr,purposeErr].forEach(hide);
+        successMsg.style.display = "none";
+        fillTime(startTimeEl); fillTime(endTimeEl);
+      });
+
+      // Delete & Clear All
+      function deleteReservation(id) {
+        const data = loadReservations();
+        const idx = data.findIndex(x => x.id === id);
+        if (idx >= 0) {
+          if (confirm("Delete this reservation?")) {
+            data.splice(idx, 1);
+            saveReservations(data);
+            renderTable();
+          }
+        }
+      }
+      document.getElementById("clearAllBtn").addEventListener("click", () => {
+        const data = loadReservations();
+        if (data.length === 0) return alert("No reservations to clear.");
+        if (confirm("Clear ALL reservations on this device? This cannot be undone.")) {
+          saveReservations([]);
+          renderTable();
+        }
+      });
+
+      // Export CSV (local only)
+      document.getElementById("exportCsvBtn").addEventListener("click", () => {
+        const rows = loadReservations();
+        if (rows.length === 0) return alert("No reservations to export.");
+        const header = ["First Name","Last Name","Date","Room","Start Time","End Time","Purpose"];
+        const csvRows = [header.join(",")];
+        for (const r of rows) {
+          const vals = [
+            r.firstName, r.lastName, r.date, r.room, r.startTime, r.endTime,
+            (r.purpose || "").replace(/\r?\n+/g, " ").replace(/"/g,'""')
+          ];
+          csvRows.push(vals.map(v => `"${(v??"")}"`).join(","));
+        }
+        const blob = new Blob([csvRows.join("\n")], {type:"text/csv;charset=utf-8;"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "occ_reservations.csv";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+
+      // Initial render
+      renderTable();
+    });
+  </script>
+</body>
+</html>
